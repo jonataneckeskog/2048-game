@@ -1,17 +1,17 @@
 package com.jonataneckeskog.game._2048.game;
 
-public class Direction {
+public enum Direction {
 
-   public static final Direction UP = new Direction(1, 0, "UP");
-   public static final Direction DOWN = new Direction(-1, 0, "DOWN");
-   public static final Direction LEFT = new Direction(0, 1, "LEFT");
-   public static final Direction RIGHT = new Direction(0, -1, "RIGHT");
+   UP(1, 0, "UP"),
+   DOWN(-1, 0, "DOWN"),
+   RIGHT(0, 1, "RIGHT"),
+   LEFT(0, -1, "LEFT");
 
    private final int rowDelta;
    private final int colDelta;
    private final String name;
 
-   private Direction(int rowDelta, int colDelta, String name) {
+   Direction(int rowDelta, int colDelta, String name) {
       this.rowDelta = rowDelta;
       this.colDelta = colDelta;
       this.name = name;
@@ -29,8 +29,8 @@ public class Direction {
       return switch (Character.toUpperCase(c)) {
          case 'N', 'U' -> UP;
          case 'S', 'D' -> DOWN;
-         case 'W', 'L' -> LEFT;
          case 'E', 'R' -> RIGHT;
+         case 'W', 'L' -> LEFT;
          default -> null;
       };
    }

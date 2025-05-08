@@ -10,6 +10,10 @@ public class BoardPosition {
       this.column = column;
    }
 
+   public BoardPosition getAssociatedPosition(Direction direction) {
+      return new BoardPosition(row + direction.getRowDelta(), column + direction.getColumnDelta());
+   }
+
    @Override
    public boolean equals(Object obj) {
       if (this == obj)

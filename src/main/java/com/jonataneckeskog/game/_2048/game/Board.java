@@ -34,88 +34,77 @@ public class Board {
       }
    }
 
-   public void update(char directionChar) {
-      boolean moved = move(directionChar);
-      if (moved)
-         fillRandomEmptyCell();
+   public boolean update(char directionChar) {
+      move(directionChar);
+      fillRandomEmptyCell();
+      return !isGameOver();
    }
 
-   public boolean move(char directionChar) {
-      Direction direction = Direction.fromChar(directionChar);
-      if (direction == null) {
-         throw new IllegalArgumentException("Invalid direction: " + directionChar);
+   public boolean isGameOver() {
+      if (!emptyCells.isEmpty())
+         return false;
+
+      for (int row = 0; row < sidelength; row++) {
+         for (int column = 0; column < sidelength; column++) {
+            BoardPosition position = new BoardPosition(row, column);
+            Cell cell = getCell(position);
+
+            for (Direction direction : Direction.values()) {
+               BoardPosition newPosition = position.getAssociatedPosition(direction);
+               if (!isPositionInBounds(newPosition))
+                  continue;
+               if (cell.canMerge(getCell(newPosition)))
+                  return false;
+            }
+         }
       }
 
-      boolean moved = false;
-
-      for (int index = 0; index < sidelength; index++) {
-         boolean lineMoved = moveLine(index, direction);
-         moved = moved || lineMoved;
-      }
-
-      return moved;
+      return true;
    }
 
-   private boolean moveLine(int index, Direction direction) {
-      List<BoardPosition> line = getLinePositions(index, direction);
-      List<Cell> cells = new ArrayList<>();
-
-      // Step 1: Collect non-empty cells
-      for (BoardPosition pos : line) {
-         Cell cell = getCell(pos);
-         if (!cell.isEmpty()) {
-            cells.add(cell);
-         }
+   public void move(char c) {
+      Direction dir = Direction.fromChar(c);
+      if (dir == null) {
+         throw new IllegalArgumentException("Invalid direction: " + c);
       }
-
-      // Step 2: Merge adjacent same-value cells
-      List<Cell> newLine = new ArrayList<>();
-      int i = 0;
-      while (i < cells.size()) {
-         if (i + 1 < cells.size() && cells.get(i).canMerge(cells.get(i + 1))) {
-            Cell merged = cells.get(i).merge();
-            newLine.add(merged);
-            i += 2; // skip next cell (merged)
-         } else {
-            newLine.add(cells.get(i));
-            i++;
-         }
-      }
-
-      // Step 3: Fill the rest with empty cells
-      while (newLine.size() < sidelength) {
-         newLine.add(Cell.emptyCell());
-      }
-
-      // Step 4: Write back and detect if anything changed
-      boolean changed = false;
-      for (int j = 0; j < sidelength; j++) {
-         BoardPosition pos = line.get(j);
-         if (!getCell(pos).equals(newLine.get(j))) {
-            setCell(newLine.get(j), pos);
-            changed = true;
-         }
-      }
-
-      return changed;
+      slideAndMerge(dir);
    }
 
-   private List<BoardPosition> getLinePositions(int index, Direction direction) {
-      List<BoardPosition> positions = new ArrayList<>();
+   private void slideAndMerge(Direction dir) {
+      boolean horizontal = dir.isHorizontal();
+      boolean forward = (dir == Direction.DOWN || dir == Direction.RIGHT);
 
-      for (int i = 0; i < sidelength; i++) {
-         int row = direction.isVertical() ? i : index;
-         int col = direction.isHorizontal() ? i : index;
+      for (int line = 0; line < sidelength; line++) {
+         List<Cell> values = new ArrayList<>();
 
-         if (direction == Direction.UP || direction == Direction.RIGHT) {
-            row = direction.isVertical() ? sidelength - 1 - i : index;
-            col = direction.isHorizontal() ? sidelength - 1 - i : index;
+         // Extract non-empty cells in swipe order
+         for (int i = 0; i < sidelength; i++) {
+            int r = horizontal ? line : (forward ? sidelength - 1 - i : i);
+            int col = horizontal ? (forward ? sidelength - 1 - i : i) : line;
+            Cell cell = board[r][col];
+            if (!cell.isEmpty())
+               values.add(cell);
          }
 
-         positions.add(new BoardPosition(row, col));
-      }
+         // Merge adjacent equal cells
+         for (int i = 0; i < values.size() - 1; i++) {
+            Cell current = values.get(i);
+            Cell next = values.get(i + 1);
+            if (current.canMerge(next)) {
+               values.set(i, current.merge());
+               values.remove(i + 1);
+            }
+         }
 
-      return positions;
+         // Rebuild line back into board using setCell
+         for (int i = 0; i < sidelength; i++) {
+            int r = horizontal ? line : (forward ? sidelength - 1 - i : i);
+            int col = horizontal ? (forward ? sidelength - 1 - i : i) : line;
+            BoardPosition pos = new BoardPosition(r, col);
+            Cell newCell = (i < values.size()) ? values.get(i) : Cell.emptyCell();
+            setCell(newCell, pos);
+         }
+      }
    }
 
    public void setCell(Cell cell, BoardPosition position) {
@@ -133,6 +122,10 @@ public class Board {
       return board[position.row][position.column];
    }
 
+   public int getSidelength() {
+      return sidelength;
+   }
+
    public boolean isPositionInBounds(BoardPosition position) {
       int row = position.row;
       int column = position.column;
@@ -144,7 +137,7 @@ public class Board {
 
    private void fillRandomEmptyCell() {
       if (emptyCells.isEmpty())
-         throw new IllegalStateException("No empty cells available to fill");
+         return;
 
       Random random = new Random();
       int index = random.nextInt(emptyCells.size());
@@ -201,6 +194,10 @@ public class Board {
          }
       }
       return board;
+   }
+
+   public int getNumberOfEmptyCells() {
+      return emptyCells.size();
    }
 
    @Override

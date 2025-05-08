@@ -51,6 +51,15 @@ class BoardTest {
    }
 
    @Test
+   void testEquals() {
+      String stringData = "2,2,0,0,0,0,0,0,3,0,0,0,0,1,0,0";
+      Board board1 = Board.buildFromString(stringData);
+      Board board2 = Board.buildFromString(stringData);
+
+      assertEquals(board1, board2);
+   }
+
+   @Test
    void testMoveDirections() {
       String stringData = "2,2,0,0,0,0,0,0,3,0,0,0,0,1,0,0";
       Board board1 = Board.buildFromString(stringData);
@@ -58,8 +67,8 @@ class BoardTest {
       Board board3 = Board.buildFromString(stringData);
       Board board4 = Board.buildFromString(stringData);
 
-      String upString = "0,0,0,0,0,0,0,0,2,2,0,0,3,1,0,0";
-      String downString = "2,2,0,0,3,1,0,0,0,0,0,0,0,0,0,0";
+      String upString = "2,2,0,0,3,1,0,0,0,0,0,0,0,0,0,0";
+      String downString = "0,0,0,0,0,0,0,0,2,2,0,0,3,1,0,0";
       String rightString = "0,0,0,3,0,0,0,0,0,0,0,3,0,0,0,1";
       String leftString = "3,0,0,0,0,0,0,0,3,0,0,0,1,0,0,0,";
 
@@ -73,62 +82,74 @@ class BoardTest {
 
       // Move up
       board1.move('U');
-      assertEquals(board1, expectedBoard1);
+      assertEquals(expectedBoard1, board1);
 
       // Move down
-      board2.move('S');
-      assertEquals(board2, expectedBoard2);
+      board2.move('D');
+      assertEquals(expectedBoard2, board2);
 
       // Move right
       board3.move('R');
-      assertEquals(board3, expectedBoard3);
+      assertEquals(expectedBoard3, board3);
 
       // Move left
       board4.move('L');
-      assertEquals(board4, expectedBoard4);
+      assertEquals(expectedBoard4, board4);
    }
 
    @Test
    void testMoveSpecial() {
       String largeBoard = "4,0,0,4,2,4,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0";
-      String fullBoard = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16";
       String largeMerge = "2,2,3,1,4,4,4,4,8,8,9,3,1,1,0,1";
+      String fullBoard = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16";
 
       Board board1 = Board.buildFromString(largeBoard);
-      Board board2 = Board.buildFromString(fullBoard);
-      Board board3 = Board.buildFromString(largeMerge);
+      Board board2 = Board.buildFromString(largeMerge);
+      Board board3 = Board.buildFromString(fullBoard);
 
       String expectedString1 = "5,2,0,0,0,4,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0";
-      String expectedString2 = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16";
+      String expectedString2 = "3,3,1,0,5,5,0,0,9,9,3,0,2,1,0,0";
 
       Board expectedBoard1 = Board.buildFromString(expectedString1);
       Board expectedBoard2 = Board.buildFromString(expectedString2);
 
       board1.move('W');
-      assertEquals(board1, expectedBoard1);
+      assertEquals(expectedBoard1, board1);
 
-      board2.move('N');
-      assertEquals(board2, expectedBoard2);
+      board2.move('W');
+      assertEquals(expectedBoard2, board2);
 
-      board3.move('W');
+      board3.move('N');
       assertEquals(board3, board3);
+   }
+
+   private void printBoard(Board board) {
+      System.out.println(board.toString());
    }
 
    @Test
    void testUpdate() {
-      String stringData = "1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0";
-      Board board = Board.buildFromString(stringData);
-      board.update('W');
+      String stringData1 = "1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0";
+      String stringData2 = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16";
+
+      Board board1 = Board.buildFromString(stringData1);
+      boolean updated1 = board1.update('W');
 
       int[] filledCount = { 0 };
 
-      board.forEachCell((position) -> {
-         Cell cell = board.getCell(position);
+      board1.forEachCell((position) -> {
+         Cell cell = board1.getCell(position);
          if (!cell.isEmpty()) {
             filledCount[0]++;
          }
       });
 
+      assertTrue(updated1, "Update should return true for a position that isn't over");
       assertTrue(filledCount[0] == 2, "Board should contain two digits after updating");
+
+      Board board2 = Board.buildFromString(stringData2);
+      boolean updated2 = board2.update('S');
+
+      assertFalse(updated2, "Should return false because the board is full with no legal moves");
    }
 }
