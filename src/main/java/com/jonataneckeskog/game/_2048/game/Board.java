@@ -1,6 +1,5 @@
 package com.jonataneckeskog.game._2048.game;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashSet;
