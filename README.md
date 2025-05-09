@@ -15,10 +15,13 @@ A desktop version of the classic **2048 puzzle game**, built with Java and Swing
 
 ---
 
-## How to Run
+## How to use
 
 1. **Clone the repository:**
    ```bash
    git clone https://github.com/your-username/2048-game.git
    cd 2048-game
+
+2. **Run the project**
+   ```bash
    mvn exec:java
