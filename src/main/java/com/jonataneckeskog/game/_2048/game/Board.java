@@ -148,13 +148,8 @@ public class Board {
       if (emptyCells.isEmpty())
          return;
 
-      Random random = new Random();
-      int index = random.nextInt(emptyCells.size());
-      Iterator<BoardPosition> iterator = emptyCells.iterator();
-      for (int i = 0; i < index; i++) {
-         iterator.next();
-      }
-      BoardPosition randomPosition = iterator.next();
+      List<BoardPosition> list = new ArrayList<>(emptyCells);
+      BoardPosition randomPosition = list.get(new Random().nextInt(list.size()));
       setCell(Cell.defaultValueCell(), randomPosition);
    }
 
