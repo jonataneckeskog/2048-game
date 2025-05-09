@@ -111,7 +111,7 @@ class BoardTest {
       Board board1 = Board.buildFromString(largeBoard);
       Board board2 = Board.buildFromString(largeMerge);
       Board board3 = Board.buildFromString(fullBoard);
-      Board board4 = Board.buildFromString(fullBoard);
+      Board board4 = Board.buildFromString(invalidMove);
 
       String expectedString1 = "5,2,0,0,0,4,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0";
       String expectedString2 = "3,3,1,0,5,5,0,0,9,9,3,0,2,1,0,0";
@@ -131,10 +131,6 @@ class BoardTest {
 
       boolean moved2 = board4.move('N');
       assertFalse(moved2, "Move should return false when the board state is unchanged");
-   }
-
-   private void printBoard(Board board) {
-      System.out.println(board.toString());
    }
 
    @Test
