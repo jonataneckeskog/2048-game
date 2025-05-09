@@ -81,19 +81,23 @@ class BoardTest {
       assertThrows(IllegalArgumentException.class, () -> board1.move('X'));
 
       // Move up
-      board1.move('U');
+      boolean moved1 = board1.move('U');
+      assertTrue(moved1, "Move should return true since the board state changed");
       assertEquals(expectedBoard1, board1);
 
       // Move down
-      board2.move('D');
+      boolean moved2 = board2.move('D');
+      assertTrue(moved2, "Move should return true since the board state changed");
       assertEquals(expectedBoard2, board2);
 
       // Move right
-      board3.move('R');
+      boolean moved3 = board3.move('R');
+      assertTrue(moved3, "Move should return true since the board state changed");
       assertEquals(expectedBoard3, board3);
 
       // Move left
-      board4.move('L');
+      boolean moved4 = board4.move('L');
+      assertTrue(moved4, "Move should return true since the board state changed");
       assertEquals(expectedBoard4, board4);
    }
 
@@ -102,10 +106,12 @@ class BoardTest {
       String largeBoard = "4,0,0,4,2,4,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0";
       String largeMerge = "2,2,3,1,4,4,4,4,8,8,9,3,1,1,0,1";
       String fullBoard = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16";
+      String invalidMove = "0,2,3,0,0,0,0,0,0,0,0,0,0,0,0,0";
 
       Board board1 = Board.buildFromString(largeBoard);
       Board board2 = Board.buildFromString(largeMerge);
       Board board3 = Board.buildFromString(fullBoard);
+      Board board4 = Board.buildFromString(fullBoard);
 
       String expectedString1 = "5,2,0,0,0,4,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0";
       String expectedString2 = "3,3,1,0,5,5,0,0,9,9,3,0,2,1,0,0";
@@ -119,8 +125,12 @@ class BoardTest {
       board2.move('W');
       assertEquals(expectedBoard2, board2);
 
-      board3.move('N');
+      boolean moved1 = board3.move('N');
+      assertFalse(moved1, "Move should return false when the board state is unchanged");
       assertEquals(board3, board3);
+
+      boolean moved2 = board4.move('N');
+      assertFalse(moved2, "Move should return false when the board state is unchanged");
    }
 
    private void printBoard(Board board) {

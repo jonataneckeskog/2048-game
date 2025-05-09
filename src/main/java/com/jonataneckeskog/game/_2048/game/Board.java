@@ -35,8 +35,9 @@ public class Board {
    }
 
    public boolean update(char directionChar) {
-      move(directionChar);
-      fillRandomEmptyCell();
+      boolean moved = move(directionChar);
+      if (moved)
+         fillRandomEmptyCell();
       return !isGameOver();
    }
 
@@ -62,15 +63,16 @@ public class Board {
       return true;
    }
 
-   public void move(char c) {
+   public boolean move(char c) {
       Direction dir = Direction.fromChar(c);
       if (dir == null) {
          throw new IllegalArgumentException("Invalid direction: " + c);
       }
-      slideAndMerge(dir);
+      return slideAndMerge(dir);
    }
 
-   private void slideAndMerge(Direction dir) {
+   private boolean slideAndMerge(Direction dir) {
+      boolean moved = false;
       boolean horizontal = dir.isHorizontal();
       boolean forward = (dir == Direction.DOWN || dir == Direction.RIGHT);
 
@@ -79,9 +81,9 @@ public class Board {
 
          // Extract non-empty cells in swipe order
          for (int i = 0; i < sidelength; i++) {
-            int r = horizontal ? line : (forward ? sidelength - 1 - i : i);
-            int col = horizontal ? (forward ? sidelength - 1 - i : i) : line;
-            Cell cell = board[r][col];
+            int row = horizontal ? line : (forward ? sidelength - 1 - i : i);
+            int column = horizontal ? (forward ? sidelength - 1 - i : i) : line;
+            Cell cell = board[row][column];
             if (!cell.isEmpty())
                values.add(cell);
          }
@@ -93,18 +95,25 @@ public class Board {
             if (current.canMerge(next)) {
                values.set(i, current.merge());
                values.remove(i + 1);
+               moved = true;
             }
          }
 
          // Rebuild line back into board using setCell
          for (int i = 0; i < sidelength; i++) {
-            int r = horizontal ? line : (forward ? sidelength - 1 - i : i);
-            int col = horizontal ? (forward ? sidelength - 1 - i : i) : line;
-            BoardPosition pos = new BoardPosition(r, col);
+            int row = horizontal ? line : (forward ? sidelength - 1 - i : i);
+            int column = horizontal ? (forward ? sidelength - 1 - i : i) : line;
+            BoardPosition position = new BoardPosition(row, column);
             Cell newCell = (i < values.size()) ? values.get(i) : Cell.emptyCell();
-            setCell(newCell, pos);
+
+            if (!getCell(position).equals(newCell)) {
+               setCell(newCell, position);
+               moved = true;
+            }
          }
       }
+
+      return moved;
    }
 
    public void setCell(Cell cell, BoardPosition position) {
